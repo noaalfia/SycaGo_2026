@@ -2,20 +2,35 @@ from pybricks.tools import wait, StopWatch
 from new import *
 from umath import pi
 
+from pybricks.tools import wait, StopWatch
+from new import *
+from umath import pi
+
 def calculate_distance():
     left_wheel_angle = left_wheel_motors.angle()  
     right_wheel_angle = right_wheel_motors.angle() 
     perimetr = WHEEL_DIAMETER * pi
-    avg_angle = abs(left_wheel_angle + right_wheel_angle) / 2
+    
+    avg_angle = (left_wheel_angle + right_wheel_angle) / 2
+
     wheel_turns = avg_angle / 360
     drive_distance = wheel_turns * perimetr
     return drive_distance
 
+
 def moving_profile(distance, max_velocity, acceleration, set_point, absolute = True, kp = 8, kd = 2):
-    if absolute == False:
+
+    direction = 1 if max_velocity >= 0 else -1
+
+    distance = abs(distance)
+    max_velocity = abs(max_velocity)
+    acceleration = abs(acceleration)
+
+
+    if not absolute:
         hub.imu.reset_heading(0)
 
-    time = max_velocity / acceleration
+    time = (abs(max_velocity)) / acceleration
     triangle = 0.5 * (acceleration * time ** 2)
     drive_base.stop()
 
@@ -34,9 +49,6 @@ def moving_profile(distance, max_velocity, acceleration, set_point, absolute = T
     last_time = 0
     last_error = 0 
 
-    angle = hub.imu.heading()
-    error = set_point - angle
-
     while True: 
         angle = hub.imu.heading()
         error = set_point - angle
@@ -44,8 +56,7 @@ def moving_profile(distance, max_velocity, acceleration, set_point, absolute = T
         current_time = timer.time()
         dt = max(1e-3, (current_time - last_time) / 1000.0)
         passed = calculate_distance()
-        remain = max(0.0, distance - passed)
-        current_distance = calculate_distance() 
+        remain = max(0.0, distance - abs(passed))
 
         p = error * kp
         d = (error - last_error) / max((current_time - last_time), 1e-3) * kd
@@ -68,5 +79,8 @@ def moving_profile(distance, max_velocity, acceleration, set_point, absolute = T
         last_error = error
 
         wait(10)
+        print(current_speed )
 
-        drive_base.drive(current_speed, correction)
+        drive_base.drive(current_speed * direction, correction)
+
+    drive_base.stop()
