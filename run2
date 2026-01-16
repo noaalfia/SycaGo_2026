@@ -1,10 +1,20 @@
 from moving_profile import moving_profile
-from turn import turn 
+from turn import turn
 from new import *
 
-moving_profile(415, 300, 200, 0, False)
-moving_profile(150 , -700 , 600 ,0)
-moving_profile(250 , 600 , 500 , 0)
-moving_profile(50 , -500 , 400 , 0)
+moving_profile(510, 300, 200, 0, False)
+moving_profile(120, -1000, 600, 0)
+moving_profile(250, 300, 200, 0)
+moving_profile(220, -400, 300, 0)
+turn(-90 , False)
+moving_profile(220, 600, 500, -90)
+turn(0)
+moving_profile(502, 500, 400, 0)
+turn(90)
+moving_profile(70, 300, 200, 90)
+left_arm.run_angle(1200,  5800)
+moving_profile(70 , -400 , 300 , 90)
+turn(0)
+moving_profile(300 , 600 , 500 , 0)
 
- #right_arm.run_angle(300, 400)
+
