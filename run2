@@ -2,18 +2,17 @@ from moving_profile import moving_profile
 from turn import turn
 from new import *
 
-moving_profile(510, 300, 200, 0, False)
-moving_profile(120, -1000, 600, 0)
-moving_profile(250, 300, 200, 0)
-moving_profile(220, -400, 300, 0)
+moving_profile(510, 400, 350, 0, False)
+moving_profile(120, -500, 450, 0)
+moving_profile(250, 500, 450, 0)
+moving_profile(210, -1000, 950, 0)
 turn(-90 , False)
-moving_profile(200, 600, 500, -90)
-turn(-3, kp=8 , kd= 4.5)
-moving_profile(500, 500, 400, -3)
-turn(90 , kp=3 , kd=5)
-moving_profile(80, 500, 400, 90)
-left_arm.run_angle(1200,  3750)
-turn(88)
-moving_profile(30 , -400 , 300 , 88)
-turn(9)
-#moving_profile(800 , 600 , 500 , 9)
+'''
+moving_profile(20, 1000, 950, -90)
+moving_profile(25, -1000, 950, -90)
+'''
+moving_profile(150, 1000, 950, -90)
+turn(-4, kp=6 , kd= 4.5) #לכייל
+moving_profile(1250 , 1000 , 800 ,-4)
+turn(90)
+moving_profile(120, 600, 400, 90)
