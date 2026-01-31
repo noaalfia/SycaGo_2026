@@ -2,21 +2,21 @@ from moving_profile import moving_profile
 from turn import turn
 from new import * 
 
-moving_profile(673, 1000, 700, False)
+moving_profile(683, 1000, 700, False)
 turn(-47, kd=4)
 moving_profile(200, 1000, 700, -47)
-right_arm.run_angle(300, -700 , Stop.BRAKE, True) 
+left_arm.run_angle(900, 600 , Stop.BRAKE, True) 
 
-moving_profile(235, -800, 500, -47)
-turn(63)
-left_arm.run_angle(1000, 100, Stop.BRAKE, False)
-moving_profile(195, 700, 500, 63)
-left_arm.run_angle(1000, -800)
-left_arm.run_angle(1000, 800)
+moving_profile(190, -800, 700, -47)
+turn(70)
+right_arm.run_angle(1000, -100, Stop.BRAKE, False)
+moving_profile(200, 700, 600, 70)
+right_arm.run_angle(800, 800)
+right_arm.run_angle(1000, -800)
 
-moving_profile(428, -1000, 700, 57)
-left_arm.run_angle(700, -200)
+right_arm.run_angle(700, 400, Stop.BRAKE, False)
+moving_profile(382, -800, 700, 57)
 turn(0)
-moving_profile(220, 1000, 1000, 0)
+moving_profile(220, 1000, 900, 0)
 moving_profile(100, -300, 300, 0)
-moving_profile(450  , -1000, 800, 3)
+moving_profile(470  , -1000, 800, 3)
