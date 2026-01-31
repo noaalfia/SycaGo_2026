@@ -2,10 +2,6 @@ from pybricks.tools import wait, StopWatch
 from new import *
 from umath import pi
 
-from pybricks.tools import wait, StopWatch
-from new import *
-from umath import pi
-
 def calculate_distance():
     left_wheel_angle = left_wheel_motors.angle()  
     right_wheel_angle = right_wheel_motors.angle() 
