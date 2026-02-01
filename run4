@@ -3,11 +3,13 @@ from turn import turn
 from moving_profile import moving_profile
 
 moving_profile(120,700,600,0, False)
-turn(-41)
-moving_profile(370,700,600,-41)
+turn(-43)
+moving_profile(370,700,600,-43)
 right_arm.run_angle(1000, 700)
+turn(-90)
+turn(-43)
 
-moving_profile(55, -700, 650, -41)
+moving_profile(55, -700, 650, -43)
 turn(0)
 right_arm.run_angle(1000, -700, Stop.BRAKE, False)
 moving_profile(357, 1000, 1000, 0)
@@ -20,12 +22,12 @@ moving_profile(70, 300, 350, 50)
 right_arm.run_angle(600, 800)
 
 moving_profile(35, -400, 350, 50)
-left_arm.run_angle(300, 390)
+left_arm.run_angle(300, -390)
 right_arm.run_angle(600, -800, Stop.BRAKE, False)
 moving_profile(65, 400,350, 50)
 turn(80)
 
-left_arm.run_angle(1000, 1000)
+left_arm.run_angle(1000, -1000)
 turn(50)
 moving_profile(105, -600, 550, 50)
 turn(-90)
