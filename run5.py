@@ -2,17 +2,17 @@ from moving_profile import moving_profile
 from turn import turn
 from new import * 
 
-moving_profile(280,1000,950,0)
-turn(-33)
-moving_profile(570,1000,950,-33)
-left_arm.run_angle(1000, -700)
+moving_profile(230,1000,950,0)
+turn(-35)
+right_arm.run_angle(1000, -700, Stop.BRAKE, False) 
+moving_profile(640, 700, 650, -40)
+right_arm.run_angle(1000, 700) 
 
-moving_profile(45, -1000, 950, -30)
-turn(-85)
-moving_profile(750,1000,950,-85)
-turn(-150)
-moving_profile(90,1000,950,-150)
-right_arm.run_angle(1000, -700)
-moving_profile(50, 1000, 950, -150)
-moving_profile(140, -1000, 950, -150)
+turn(-82)
+moving_profile(725, 1000, 950, -90, kp=7.5)
+turn(-160)
+moving_profile(70,1000,950,-160)
+left_arm.run_angle(1000, 700)
+moving_profile(60, 1000, 950, -160)
+moving_profile(60, -1000, 950, -160)
  
