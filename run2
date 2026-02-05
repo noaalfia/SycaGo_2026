@@ -2,12 +2,13 @@ from moving_profile import moving_profile
 from turn import turn
 from new import *
 
-moving_profile(570, 1000, 950, 0, False)
-moving_profile(170, -1000, 950, 0)
-moving_profile(200, 1000, 900, 0)
-moving_profile(100, -900, 800, 0)
-moving_profile(110, 1000, 900, 0)
-moving_profile(100, -900, 800, 0)
-moving_profile(110, 1000, 900, 0)
-moving_profile(300, -900, 800, 0)
+moving_profile(550, 600, 550, 0, False)
+moving_profile(155, -1000, 950, 0)
+moving_profile(150, 1000, 900, 0)
+moving_profile(80, -900, 800, 0)
+moving_profile(80, 1000, 900, 0)
+moving_profile(80, -900, 800, 0)
+moving_profile(80, 1000, 900, 0)
+moving_profile(300, -400, 300, 0)
 moving_profile(480, 900, 850, -35)
+
