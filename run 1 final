@@ -1,8 +1,9 @@
+
 from moving_profile import moving_profile
 from turn import turn
 from new import * 
 
-moving_profile(690, 1000, 700, False)
+moving_profile(692, 1000, 700, False)
 turn(-47, kd=4)
 moving_profile(200, 1000, 700, -47)
 left_arm.run_angle(300, 700 , Stop.BRAKE, True) 
@@ -15,7 +16,7 @@ right_arm.run_angle(600, 800)
 right_arm.run_angle(1000, -800)
 
 moving_profile(406, -1000, 700, 57)
-right_arm.run_angle(700, 200)
+right_arm.run_angle(700, 400)
 turn(0)
 moving_profile(220, 1000, 1000, 0)
 moving_profile(100, -300, 300, 0)
