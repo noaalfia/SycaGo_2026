@@ -14,7 +14,7 @@ def calculate_distance():
     return drive_distance
 
 
-def moving_profile(distance, max_velocity, acceleration, set_point, absolute = True, kp = 8, kd = 2):
+def moving_profile(distance, max_velocity, acceleration, set_point, absolute = True, kp = 0.6, kd = 0.05):
 
     direction = 1 if max_velocity >= 0 else -1
 
