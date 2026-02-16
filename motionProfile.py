@@ -1,82 +1,118 @@
 from pybricks.tools import wait, StopWatch
-from new import *
-from umath import pi
+from umath import pi, fabs
+# הנחה שהקבוע WHEEL_DIAMETER וייבוא המנועים נמצאים ב-new
+from new import * # --- הגדרות קבועות ---
+# אם הרובוט רועד, תוריד את המספר הזה ל-15 או 12
+KP_DEFAULT = 12.0   
+# אם יש רעש של "דבורה", תוריד את זה ל-0
+KD_DEFAULT = 0.5    
 
 def calculate_distance():
-    left_wheel_angle = left_wheel_motors.angle()  
-    right_wheel_angle = right_wheel_motors.angle() 
-    perimetr = WHEEL_DIAMETER * pi
+    """ חישוב מרחק לפי ממוצע המנועים """
+    left = left_wheel_motors.angle()
+    right = right_wheel_motors.angle()
+    avg_angle = (left + right) / 2
+    return (avg_angle / 360) * (WHEEL_DIAMETER * pi)
+
+def moving_profile(target_distance, max_velocity, acceleration, target_heading, absolute=True, kp=KP_DEFAULT, kd=KD_DEFAULT):
+    """
+    פרופיל תנועה טרפזי (האצה -> שיוט -> האטה) מחושב מראש.
+    מונע קפיצות וגמגומים.
+    """
     
-    avg_angle = (left_wheel_angle + right_wheel_angle) / 2
-
-    wheel_turns = avg_angle / 360
-    drive_distance = wheel_turns * perimetr
-    return drive_distance
-
-
-def moving_profile(distance, max_velocity, acceleration, set_point, absolute = True, kp = 0.6, kd = 0.05):
-
-    direction = 1 if max_velocity >= 0 else -1
-
-    distance = abs(distance)
-    max_velocity = abs(max_velocity)
-    acceleration = abs(acceleration)
-
-
+    # 1. איפוסים והכנות
+    drive_base.stop()
+    left_wheel_motors.reset_angle(0)
+    right_wheel_motors.reset_angle(0)
+    
     if not absolute:
         hub.imu.reset_heading(0)
 
-    time = (abs(max_velocity)) / acceleration
-    triangle = 0.5 * (acceleration * time ** 2)
-    drive_base.stop()
-
-    left_wheel_motors.reset_angle(0)
-    right_wheel_motors.reset_angle(0)
-    timer = StopWatch()
+    # כיוון וערכים מוחלטים
+    direction = 1 if target_distance >= 0 else -1
+    total_dist = abs(target_distance)
+    v_max = abs(max_velocity)
+    accel = abs(acceleration)
     
-    MIN_REMAIN_MM = 0.5
-    MIN_SPEED_MM_S = 5.0
+    # --- 2. חישוב הפרופיל (המתמטיקה שמונעת את הבאמפר) ---
+    # המרחק שלוקח להאיץ למהירות המקסימלית
+    accel_dist = (v_max * v_max) / (2 * accel)
+    
+    # אם המרחק הכולל קצר מדי (אין מקום להגיע למהירות מקסימלית) -> פרופיל משולש
+    if (accel_dist * 2) > total_dist:
+        accel_dist = total_dist / 2
+        decel_dist = total_dist / 2
+        cruise_dist = 0
+        # חישוב המהירות החדשה שנגיע אליה (תהיה נמוכה מהמקסימום)
+        # v = sqrt(2 * a * d)
+        v_max = (2 * accel * accel_dist) ** 0.5
+    else:
+        # פרופיל טרפז מלא
+        decel_dist = accel_dist
+        cruise_dist = total_dist - (accel_dist + decel_dist)
+
+    # נקודות ציון למעבר בין שלבים
+    point_end_accel = accel_dist
+    point_start_decel = accel_dist + cruise_dist
+    
+    # משתנים ללולאה
+    timer = StopWatch()
+    last_time = timer.time() / 1000.0
+    last_error = 0
     current_speed = 0.0
-    start_distance_0 = 0
-    velocity_0 = 0.0
-    upperBase = distance - triangle*2
-    after_acceleration = triangle
-    before_deceleration = upperBase + triangle
-    last_time = 0
-    last_error = 0 
-
-    while True: 
-        angle = hub.imu.heading()
-        error = set_point - angle
-
-        current_time = timer.time()
-        dt = max(1e-3, (current_time - last_time) / 1000.0)
-        passed = calculate_distance()
-        remain = max(0.0, distance - abs(passed))
-
-        p = error * kp
-        d = (error - last_error) / max((current_time - last_time), 1e-3) * kd
-        correction = p + d
-
-        if remain <= MIN_REMAIN_MM and current_speed <= MIN_SPEED_MM_S:
-            break
-
-        d_brake = (current_speed * current_speed) / (2 * acceleration)
-
-        if remain <= d_brake + 1e-9:
-            current_speed = max(0.0, current_speed - acceleration * dt)
+    MIN_SPEED = 25  # מהירות מינימלית כדי לא להיתקע בסוף
+    
+    while True:
+        # חישוב זמנים (בשניות)
+        now = timer.time() / 1000.0
+        dt = now - last_time
+        if dt <= 0: dt = 0.001
+        
+        # איפה אנחנו נמצאים?
+        current_dist_covered = abs(calculate_distance())
+        remain = total_dist - current_dist_covered
+        
+        # --- 3. מכונת מצבים (State Machine) ---
+        if current_dist_covered < point_end_accel:
+            # שלב האצה
+            current_speed += (accel * dt)
+            if current_speed > v_max: current_speed = v_max
+            
+        elif current_dist_covered < point_start_decel:
+            # שלב שיוט (מהירות קבועה)
+            current_speed = v_max
+            
         else:
-            if current_speed < max_velocity:
-                current_speed = min(max_velocity , current_speed + acceleration*dt)
-            else:
-                current_speed = max_velocity
+            # שלב האטה
+            # כאן אנחנו מורידים מהירות בצורה לינארית
+            current_speed -= (accel * dt)
+            # מוודאים שלא יורדים מתחת למינימום עד שממש מגיעים
+            if current_speed < MIN_SPEED:
+                current_speed = MIN_SPEED
 
-        last_time = current_time
+        # --- 4. בקרת כיוון (PID) ---
+        current_heading = hub.imu.heading()
+        error = target_heading - current_heading
+        
+        derivative = (error - last_error) / dt
+        
+        # Gain Scheduling: החלשת התיקון במהירויות נמוכות למניעת רעידות
+        scale_factor = 1.0
+        if current_speed < (v_max * 0.4): # אם אנחנו ב-40% מהירות ומטה
+            scale_factor = 0.5  # חותכים את עוצמת התיקון בחצי
+            
+        turn_rate = (error * kp + derivative * kd) * scale_factor
+
+        # --- 5. הפעלה ותנאי יציאה ---
+        drive_base.drive(current_speed * direction, turn_rate)
+        
+        last_time = now
         last_error = error
-
+        
+        # יציאה מהלולאה כשהגענו למרחק
+        if remain <= 5: # 5 מ"מ טולרנס
+            break
+            
         wait(10)
-        print(current_speed )
-
-        drive_base.drive(current_speed * direction, correction)
 
     drive_base.stop()
