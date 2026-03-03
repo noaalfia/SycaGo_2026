@@ -1,0 +1,8 @@
+from moving_profile import moving_profile
+from turn import smart_profiled_turn
+from new import *
+
+moving_profile(705, 800, 750, 4, kp=10, kd=0.5)
+turn(-47, kd=4)
+moving_profile(265, 1000, 700, -47)
+
