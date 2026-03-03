@@ -1,0 +1,15 @@
+from moving_profile import moving_profile
+from turn import smart_profiled_turn
+from new import * 
+
+moving_profile(220,900,850,0, False)
+smart_profiled_turn(-30)
+moving_profile(390,1000,950,-30)
+smart_profiled_turn(80)
+moving_profile(270, 500, 450, 80)
+
+#right_arm.run_angle(500, -2000, Stop.BRAKE, False)
+left_arm.run_angle(500, 350)
+#right_arm.run_angle(500, 2000, Stop.BRAKE, False)
+left_arm.run_angle(500, -500)
+
