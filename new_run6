@@ -4,9 +4,9 @@ from moving_profile import moving_profile
 
 moving_profile(535, 500, 400, 2, False)
 moving_profile(-55, 300, 200, 0)
-left_arm.run_angle(800, -2800)
-moving_profile(-20, 300, 200, 0)
-moving_profile(35, 300, 200, 0)
+left_arm.run_angle(800, -3000)
+moving_profile(-45, 300, 200, 0)
+moving_profile(55, 300, 200, 2)
 right_arm.run_angle(800, 2500)
 moving_profile(-35, 300, 200, 0)
 left_arm.run_angle(800, 1700)
