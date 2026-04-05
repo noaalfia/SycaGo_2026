@@ -1,31 +1,40 @@
 from pybricks.tools import wait, StopWatch
-from new import * # בהנחה ש-WHEEL_DIAMETER ו-AXLE_TRACK כאן
 from umath import pi
-
+from new import * 
 def smart_profiled_turn(
     target_angle, 
     max_turn_rate=700, 
     turn_acceleration=480,
-    kp=5.0,                  
-    kd=0.4,                  
-    ks=20,                   
-    tolerance_deg=0.3,       
+    kp=4.0,                  
+    kd=0.3,                  
+    ks=15,                   
+    tolerance_deg=0.5,       
     settle_time_ms=50,       
     absolute=True
 ):
     
-    # print(f"\n--- START TURN: angle={target_angle}, v={max_turn_rate} ---")
-
-    drive_base.stop()
+    # 1. שחרור מנועים (מניעת התנגשות עם DriveBase)
+    left_wheel_motors.stop()
+    right_wheel_motors.stop()
+    
     if not absolute:
         hub.imu.reset_heading(0)
+        
+    # שמירת זווית התחלתית לחישוב התקדמות ולמניעת באג אבסולוטי
+    start_heading = hub.imu.heading() 
     
-    direction = 1 if target_angle >= 0 else -1
-    total_angle = abs(target_angle)
-    v_max = abs(max_turn_rate)
-    accel = abs(turn_acceleration)
+    direction = 1 if target_angle >= start_heading else -1
+    
+    # חישוב המרחק הזוויתי הכולל שצריך לעבור (בדלתא)
+    total_angle = abs(target_angle - start_heading) 
     
     ratio = AXLE_TRACK / WHEEL_DIAMETER
+    
+    # מנגנון הגנה: הגבלת המהירות כדי שלא לעבור את היכולת הפיזית של המנוע (Saturation)
+    max_safe_turn_rate = 850 / ratio 
+    v_max = min(abs(max_turn_rate), max_safe_turn_rate)
+    
+    accel = abs(turn_acceleration)
     
     accel_angle = (v_max * v_max) / (2 * accel)
     if (accel_angle * 2) > total_angle:
@@ -53,7 +62,8 @@ def smart_profiled_turn(
         dt = now - last_time
         if dt <= 0: dt = 0.001
         
-        current_angle_covered = abs(hub.imu.heading())
+        # חישוב ההתקדמות היחסית מתחילת הפנייה
+        current_angle_covered = abs(hub.imu.heading() - start_heading)
         remain = total_angle - current_angle_covered
         
         if remain <= 2.0:
@@ -69,12 +79,9 @@ def smart_profiled_turn(
             if current_speed < MIN_SPEED: current_speed = MIN_SPEED
             
         wheel_speed = current_speed * ratio
+        
         left_wheel_motors.run(wheel_speed * direction)
         right_wheel_motors.run(-wheel_speed * direction)
-        
-        # current_heading = hub.imu.heading()
-        # error = target_angle - current_heading
-        # print(f"{now:.3f},1,{current_heading:.2f},{error:.2f},{wheel_speed * direction:.2f}")
         
         last_time = now
         wait(10)
@@ -85,7 +92,11 @@ def smart_profiled_turn(
     last_error = target_angle - hub.imu.heading()
     on_target_ms = 0
     last_ms = sw.time()
+    pid_start_time = sw.time() # הגנת תקיעה (Timeout)
     
+    # מעקב Overshoot לטובת ציון ה-Twiddle
+    peak_angle = abs(hub.imu.heading() - start_heading)
+
     while True:
         now_ms = sw.time()
         dt_ms = now_ms - last_ms
@@ -95,12 +106,22 @@ def smart_profiled_turn(
         current_heading = hub.imu.heading()
         error = target_angle - current_heading
         
+        # עדכון שיא הפנייה אם עברנו אותו (חריגה)
+        current_abs_angle = abs(current_heading - start_heading)
+        if current_abs_angle > peak_angle:
+            peak_angle = current_abs_angle
+        
         if abs(error) <= tolerance_deg:
             on_target_ms += dt_ms
             if on_target_ms >= settle_time_ms:
                 break
         else:
             on_target_ms = 0
+            
+        # הגנת Timeout - אם ה-PID לא מצליח להתייצב אחרי 5 שניות, חותכים כדי לא להיתקע
+        if (now_ms - pid_start_time) > 5000:
+            print("PID TIMEOUT REACHED!")
+            break
             
         p = kp * error
         d = kd * (error - last_error) / dt
@@ -115,17 +136,13 @@ def smart_profiled_turn(
         left_wheel_motors.run(speed_left)
         right_wheel_motors.run(speed_right)
         
-        # now_sec = now_ms / 1000.0
-        # print(f"{now_sec:.3f},2,{current_heading:.2f},{error:.2f},{speed_left:.2f}")
-        
         last_error = error
         last_ms = now_ms
         wait(10)
         
-    left_wheel_motors.hold()
-    right_wheel_motors.hold()
+    # החלפה ל-brake למניעת רעידת סיום שקיימת לעתים ב-hold
+    left_wheel_motors.brake()
+    right_wheel_motors.brake()
     
-    # now_sec = sw.time() / 1000.0
-    # final_heading = hub.imu.heading()
-    # print(f"{now_sec:.3f},3,{final_heading:.2f},{target_angle - final_heading:.2f},0.00")
-    # print("--- END TURN ---")
+    # החזרת ה-Peak עבור ה-Auto-Tuner (Twiddle) שיוכל לחשב Overshoot
+    return peak_angle
