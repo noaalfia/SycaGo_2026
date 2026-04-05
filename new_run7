@@ -3,8 +3,7 @@ from turn import smart_profiled_turn
 from new import *
 from pybricks.tools import wait, StopWatch
 
-moving_profile(450 , 700 , 600 , 0 , False)
-moving_profile(-325 , 700 , 600 , 0 )
-smart_profiled_turn(-25)
-moving_profile(545 , 700 , 600 , -25)
-
+moving_profile(600 , 1000 , 900 , 0 , False)
+moving_profile(-300 , 1000 , 900 , 0 )
+smart_profiled_turn(-27)
+moving_profile(580, 1000, 900, -27)
