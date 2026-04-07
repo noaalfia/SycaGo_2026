@@ -19,6 +19,5 @@ left_arm.run_angle(1000, 400, Stop.BRAKE, False)
 right_arm.run_angle(1000, 400)
 left_arm.run_angle(1000, -400, Stop.BRAKE, False)
 right_arm.run_angle(1000 , -400)
-
 smart_profiled_turn(-90)
 moving_profile(270, 1000, 900, -90)
