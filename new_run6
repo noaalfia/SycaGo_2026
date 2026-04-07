@@ -2,13 +2,13 @@ from new import *
 from turn import smart_profiled_turn
 from moving_profile import moving_profile
 
-moving_profile(610, 700, 400, 1, False)
-moving_profile(-50, 300, 200, 0)
+moving_profile(610, 700, 400, 0, False)
+moving_profile(-40, 300, 200, 0)
 right_arm.run_angle(1000, 3500)
 moving_profile(-30, 300, 200, 0)
 moving_profile(50, 300, 200, 1)
 left_arm.run_angle(1000, -2500)
 moving_profile(-35, 300, 200, 0)
 right_arm.run_angle(800, -1700)
-right_arm.run_angle(800, -3700, Stop.BRAKE, False)
+right_arm.run_angle(800, -3600, Stop.BRAKE, False)
 moving_profile(-535, 800, 750, 0)
